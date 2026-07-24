@@ -1,83 +1,34 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:tools="http://schemas.android.com/tools">
-
-<!-- Camera permissions -->
-<uses-permission android:name="android.permission.CAMERA" />
-
-<!-- Storage permissions for Android 12 and below -->
-<uses-permission
-    android:name="android.permission.READ_EXTERNAL_STORAGE"
-    android:maxSdkVersion="32" />
-
-<uses-permission
-    android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-    android:maxSdkVersion="32"
-    tools:replace="android:maxSdkVersion" />
-
-<!-- Android 13+ image access -->
-<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-
-    <!-- Weather location permissions -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
-    <!-- Calendar is read only; calendar events are never stored by the app. -->
-    <uses-permission android:name="android.permission.READ_CALENDAR" />
-    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
-
-    <!-- Internet permission -->
-    <uses-permission android:name="android.permission.INTERNET" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
-        android:label="smart_wardrobe_assistant"
+        android:label="flutter_application_1"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
 
-<!-- Weather location permissions -->
-<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+            <meta-data
+                android:name="io.flutter.embedding.android.NormalTheme"
+                android:resource="@style/NormalTheme" />
 
-<!-- Internet permission -->
-<uses-permission android:name="android.permission.INTERNET" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
 
-<application
-    android:label="flutter_application_1"
-    android:name="${applicationName}"
-    android:icon="@mipmap/ic_launcher">
-
-    <activity
-        android:name=".MainActivity"
-        android:exported="true"
-        android:launchMode="singleTop"
-        android:taskAffinity=""
-        android:theme="@style/LaunchTheme"
-        android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
-        android:hardwareAccelerated="true"
-        android:windowSoftInputMode="adjustResize">
+        </activity>
 
         <meta-data
-            android:name="io.flutter.embedding.android.NormalTheme"
-            android:resource="@style/NormalTheme" />
+            android:name="flutterEmbedding"
+            android:value="2" />
 
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
-
-    </activity>
-
-<meta-data
-    android:name="flutterEmbedding"
-    android:value="2" />
-
-</application>
-
-<queries>
-    <intent>
-        <action android:name="android.intent.action.PROCESS_TEXT" />
-        <data android:mimeType="text/plain" />
-    </intent>
-</queries>
+    </application>
 
 </manifest>
