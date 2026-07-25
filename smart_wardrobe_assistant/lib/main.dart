@@ -38,6 +38,7 @@ import 'providers/shopping_recommendation_provider.dart';
 import 'providers/calendar_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/settings_provider.dart';
+import 'screens/profile/profile_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -72,102 +73,103 @@ class MyApp extends StatelessWidget {
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, _) => MaterialApp(
-          title: 'Smart Wardrobe Assistant',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.light,
-          darkTheme: DarkTheme.theme,
-          themeMode: themeProvider.themeMode,
-          initialRoute: '/',
-          onGenerateRoute: (settings) {
-            // Handle routes with arguments
-            if (settings.name == '/clothing-details') {
-              final clothingItem = settings.arguments as ClothingItem;
-              return MaterialPageRoute(
-                builder: (context) =>
-                    ClothingDetailsScreen(clothingItem: clothingItem),
-              );
-            }
+title: 'Smart Wardrobe Assistant',
+debugShowCheckedModeBanner: false,
+theme: AppTheme.light,
+darkTheme: DarkTheme.theme,
+themeMode: themeProvider.themeMode,
+initialRoute: '/',
+onGenerateRoute: (settings) {
+  // Handle routes with arguments
+  if (settings.name == '/clothing-details') {
+    final clothingItem = settings.arguments as ClothingItem;
+    return MaterialPageRoute(
+      builder: (context) => ClothingDetailsScreen(
+        clothingItem: clothingItem,
+      ),
+    );
+  }
 
-            if (settings.name == '/add-clothing') {
-              return MaterialPageRoute(
-                builder: (context) => AddClothingScreen(
-                  initialImagePath: settings.arguments as String?,
-                ),
-              );
-            }
+  if (settings.name == '/add-clothing') {
+    return MaterialPageRoute(
+      builder: (context) => AddClothingScreen(
+        initialImagePath: settings.arguments as String?,
+      ),
+    );
+  }
 
-            if (settings.name == '/background-removal-preview') {
-              return MaterialPageRoute(
-                builder: (context) => BackgroundRemovalPreviewScreen(
-                  originalImagePath: settings.arguments as String,
-                ),
-              );
-            }
+  if (settings.name == '/background-removal-preview') {
+    return MaterialPageRoute(
+      builder: (context) => BackgroundRemovalPreviewScreen(
+        originalImagePath: settings.arguments as String,
+      ),
+    );
+  }
 
-            // Return null for routes handled by the routes map
-            return null;
-          },
-          routes: {
-            '/': (context) => const SplashScreen(),
+  // Return null for routes handled by the routes map
+  return null;
+},
+routes: {
+  '/': (context) => const SplashScreen(),
 
-            '/onboarding': (context) => const OnboardingScreen(),
+  '/onboarding': (context) => const OnboardingScreen(),
 
-            '/login': (context) => const LoginScreen(),
+  '/login': (context) => const LoginScreen(),
 
-            '/register': (context) => const RegisterScreen(),
+  '/register': (context) => const RegisterScreen(),
 
-            '/forgot-password': (context) => const ForgotPasswordScreen(),
+  '/forgot-password': (context) => const ForgotPasswordScreen(),
 
-            '/home': (context) => const HomeDashboardScreen(),
+  '/home': (context) => const HomeDashboardScreen(),
 
-            // Camera
-            '/camera': (context) => CameraScreen(cameras: cameras),
+  // Camera
+  '/camera': (context) => CameraScreen(cameras: cameras),
 
-            // Wardrobe
-            '/wardrobe': (context) => const WardrobeScreen(),
+  // Wardrobe
+  '/wardrobe': (context) => const WardrobeScreen(),
 
-            '/otp-verification': (context) =>
-                const MyHomePage(title: 'OTP Verification Screen'),
+  '/otp-verification': (context) =>
+      const MyHomePage(title: 'OTP Verification Screen'),
 
-            '/edit-clothing': (context) =>
-                const MyHomePage(title: 'Edit Clothing Screen'),
+  '/edit-clothing': (context) =>
+      const MyHomePage(title: 'Edit Clothing Screen'),
 
-            '/suggestions': (context) => const RecommendationScreen(),
+  '/suggestions': (context) => const RecommendationScreen(),
 
-            '/recommendations': (context) => const RecommendationScreen(),
+  '/recommendations': (context) => const RecommendationScreen(),
 
-            '/history': (context) => const MyHomePage(title: 'History Screen'),
+  '/history': (context) =>
+      const MyHomePage(title: 'History Screen'),
 
-            '/shopping-recommendations': (context) =>
-                const ShoppingRecommendationsScreen(),
+  '/shopping-recommendations': (context) =>
+      const ShoppingRecommendationsScreen(),
 
-            '/calendar': (context) => const CalendarScreen(),
+  '/calendar': (context) => const CalendarScreen(),
 
-            '/settings': (context) => const SettingsScreen(),
+  '/settings': (context) => const SettingsScreen(),
 
-            '/style-tips': (context) => const FeaturePlaceholderScreen(
-              title: 'Style Tips',
-              icon: Icons.lightbulb_outline,
-              message: 'Style tips will appear here as your wardrobe grows.',
-            ),
+  '/style-tips': (context) => const FeaturePlaceholderScreen(
+        title: 'Style Tips',
+        icon: Icons.lightbulb_outline,
+        message: 'Style tips will appear here as your wardrobe grows.',
+      ),
 
-            '/outfit-history': (context) => const FeaturePlaceholderScreen(
-              title: 'Outfit History',
-              icon: Icons.shopping_bag_outlined,
-              message: 'Your saved outfit history will appear here.',
-            ),
+  '/outfit-history': (context) => const FeaturePlaceholderScreen(
+        title: 'Outfit History',
+        icon: Icons.shopping_bag_outlined,
+        message: 'Your saved outfit history will appear here.',
+      ),
 
-            '/activity-history': (context) => const FeaturePlaceholderScreen(
-              title: 'Activity History',
-              icon: Icons.history,
-              message: 'Your wardrobe activity will appear here.',
-            ),
+  '/activity-history': (context) => const FeaturePlaceholderScreen(
+        title: 'Activity History',
+        icon: Icons.history,
+        message: 'Your wardrobe activity will appear here.',
+      ),
 
-            '/profile': (context) => const ProfileScreen(),
+  '/profile': (context) => const ProfileScreen(),
 
-            '/search': (context) => const WardrobeSearchScreen(),
-          },
-        ),
+  '/search': (context) => const WardrobeSearchScreen(),
+},        ),
       ),
     );
   }

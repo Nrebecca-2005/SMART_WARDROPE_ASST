@@ -1,15 +1,5 @@
-// ============================================
-// PROFILE_SCREEN.DART
-// ============================================
-// Real user profile screen.
-//
-// Purpose:
-// - Show the authenticated user's picture, name, email and gender.
-// - Offer Edit Profile, Settings and Logout actions.
-// - Reuse the existing AuthProvider / ProfileProvider (no new state source).
-// ============================================
-
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -19,8 +9,6 @@ import '../../providers/auth_provider.dart';
 import '../../providers/profile_provider.dart';
 import '../../providers/wardrobe_provider.dart';
 
-/// ProfileScreen
-/// Displays the current user's account information and account actions.
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -44,16 +32,18 @@ class ProfileScreen extends StatelessWidget {
       body: SafeArea(
         child: Consumer<AuthProvider>(
           builder: (context, authProvider, _) {
-            // Not signed in — do not fabricate a user.
-            if (!authProvider.isAuthenticated) {
+            if (!authProvider.isAuthenticated ||
+                authProvider.currentUser == null) {
               return _buildSignedOut(context);
             }
 
             final user = authProvider.currentUser!;
+
             return ListView(
               padding: const EdgeInsets.all(20),
               children: [
                 _buildHeaderCard(
+                  context,
                   user.initials,
                   user.fullName,
                   user.email,
@@ -69,10 +59,8 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // ============================================
-  // HEADER CARD (picture + identity)
-  // ============================================
   Widget _buildHeaderCard(
+    BuildContext context,
     String initials,
     String fullName,
     String email,
@@ -81,17 +69,23 @@ class ProfileScreen extends StatelessWidget {
     return Card(
       elevation: 0,
       color: AppColors.card,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
+        padding: const EdgeInsets.symmetric(
+          vertical: 28,
+          horizontal: 20,
+        ),
         child: Column(
           children: [
-            // Profile picture with initials fallback, backed by ProfileProvider.
             Consumer<ProfileProvider>(
               builder: (context, profile, _) {
                 final hasPicture =
                     profile.hasProfilePicture &&
+                    profile.profilePicturePath != null &&
                     File(profile.profilePicturePath!).existsSync();
+
                 return CircleAvatar(
                   radius: 48,
                   backgroundColor: AppColors.primary,
@@ -102,25 +96,30 @@ class ProfileScreen extends StatelessWidget {
                             width: 96,
                             height: 96,
                             fit: BoxFit.cover,
-                            errorBuilder: (context, error, stack) =>
-                                _initials(initials),
+                            errorBuilder: (context, error, stackTrace) {
+                              return _initials(initials);
+                            },
                           ),
                         )
                       : _initials(initials),
                 );
               },
             ),
+
             const SizedBox(height: 16),
+
             Text(
               fullName,
+              textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
               ),
-              textAlign: TextAlign.center,
             ),
+
             const SizedBox(height: 4),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -133,15 +132,16 @@ class ProfileScreen extends StatelessWidget {
                 Flexible(
                   child: Text(
                     email,
+                    overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.poppins(
                       fontSize: 14,
                       color: AppColors.textSecondary,
                     ),
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
             ),
+
             if (gender != null && gender.isNotEmpty) ...[
               const SizedBox(height: 8),
               Container(
@@ -169,43 +169,65 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _initials(String initials) => Text(
-    initials,
-    style: GoogleFonts.poppins(
-      fontSize: 32,
-      fontWeight: FontWeight.bold,
-      color: AppColors.textOnPrimary,
-    ),
-  );
+  Widget _initials(String initials) {
+    return Text(
+      initials,
+      style: GoogleFonts.poppins(
+        fontSize: 32,
+        fontWeight: FontWeight.bold,
+        color: AppColors.textOnPrimary,
+      ),
+    );
+  }
 
-  // ============================================
-  // ACTIONS CARD (edit / settings / logout)
-  // ============================================
-  Widget _buildActionsCard(BuildContext context, AuthProvider authProvider) {
+  Widget _buildActionsCard(
+    BuildContext context,
+    AuthProvider authProvider,
+  ) {
     return Card(
       elevation: 0,
       color: AppColors.card,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Column(
         children: [
           _actionTile(
             icon: Icons.edit_outlined,
             label: 'Edit Profile',
-            onTap: () => _showEditProfile(context, authProvider),
+            onTap: () => _showEditProfile(
+              context,
+              authProvider,
+            ),
           ),
-          const Divider(height: 1, color: AppColors.divider),
+
+          const Divider(
+            height: 1,
+            color: AppColors.divider,
+          ),
+
           _actionTile(
             icon: Icons.settings_outlined,
             label: 'Settings',
-            onTap: () => Navigator.of(context).pushNamed('/settings'),
+            onTap: () {
+              Navigator.of(context).pushNamed('/settings');
+            },
           ),
-          const Divider(height: 1, color: AppColors.divider),
+
+          const Divider(
+            height: 1,
+            color: AppColors.divider,
+          ),
+
           _actionTile(
             icon: Icons.logout,
             label: 'Logout',
             iconColor: AppColors.error,
             labelColor: AppColors.error,
-            onTap: () => _confirmLogout(context, authProvider),
+            onTap: () => _confirmLogout(
+              context,
+              authProvider,
+            ),
           ),
         ],
       ),
@@ -220,7 +242,10 @@ class ProfileScreen extends StatelessWidget {
     Color labelColor = AppColors.textPrimary,
   }) {
     return ListTile(
-      leading: Icon(icon, color: iconColor),
+      leading: Icon(
+        icon,
+        color: iconColor,
+      ),
       title: Text(
         label,
         style: GoogleFonts.poppins(
@@ -229,14 +254,14 @@ class ProfileScreen extends StatelessWidget {
           color: labelColor,
         ),
       ),
-      trailing: const Icon(Icons.chevron_right, color: AppColors.textHint),
+      trailing: const Icon(
+        Icons.chevron_right,
+        color: AppColors.textHint,
+      ),
       onTap: onTap,
     );
   }
 
-  // ============================================
-  // SIGNED-OUT STATE
-  // ============================================
   Widget _buildSignedOut(BuildContext context) {
     return Center(
       child: Padding(
@@ -249,7 +274,9 @@ class ProfileScreen extends StatelessWidget {
               size: 72,
               color: AppColors.textHint,
             ),
+
             const SizedBox(height: 16),
+
             Text(
               'You are not signed in',
               style: GoogleFonts.poppins(
@@ -258,20 +285,27 @@ class ProfileScreen extends StatelessWidget {
                 color: AppColors.textPrimary,
               ),
             ),
+
             const SizedBox(height: 8),
+
             Text(
               'Sign in to view your profile details.',
+              textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 color: AppColors.textSecondary,
               ),
-              textAlign: TextAlign.center,
             ),
+
             const SizedBox(height: 24),
+
             ElevatedButton(
-              onPressed: () => Navigator.of(
-                context,
-              ).pushNamedAndRemoveUntil('/login', (route) => false),
+              onPressed: () {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/login',
+                  (route) => false,
+                );
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: AppColors.textOnPrimary,
@@ -282,7 +316,9 @@ class ProfileScreen extends StatelessWidget {
               ),
               child: Text(
                 'Go to Login',
-                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],
@@ -291,14 +327,18 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // ============================================
-  // EDIT PROFILE (reuses AuthProvider.updateProfile)
-  // ============================================
-  void _showEditProfile(BuildContext context, AuthProvider authProvider) {
+  void _showEditProfile(
+    BuildContext context,
+    AuthProvider authProvider,
+  ) {
     final user = authProvider.currentUser;
+
     if (user == null) return;
 
-    final nameController = TextEditingController(text: user.fullName);
+    final nameController = TextEditingController(
+      text: user.fullName,
+    );
+
     String? gender = user.gender;
 
     showModalBottomSheet(
@@ -306,7 +346,9 @@ class ProfileScreen extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: AppColors.card,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20),
+        ),
       ),
       builder: (sheetContext) {
         return Padding(
@@ -314,133 +356,197 @@ class ProfileScreen extends StatelessWidget {
             left: 20,
             right: 20,
             top: 20,
-            bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 20,
+            bottom: MediaQuery.of(sheetContext)
+                    .viewInsets
+                    .bottom +
+                20,
           ),
           child: StatefulBuilder(
-            builder: (context, setModalState) => Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Edit Profile',
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: nameController,
-                  textCapitalization: TextCapitalization.words,
-                  decoration: InputDecoration(
-                    labelText: 'Full name',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+            builder: (context, setModalState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Edit Profile',
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Gender',
-                  style: GoogleFonts.poppins(
-                    fontSize: 13,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  children: ['Male', 'Female', 'Other'].map((option) {
-                    return ChoiceChip(
-                      label: Text(option),
-                      selected: gender == option,
-                      selectedColor: AppColors.primaryLight,
-                      onSelected: (_) => setModalState(() => gender = option),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: AppColors.textOnPrimary,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+
+                  const SizedBox(height: 16),
+
+                  TextField(
+                    controller: nameController,
+                    textCapitalization:
+                        TextCapitalization.words,
+                    decoration: InputDecoration(
+                      labelText: 'Full name',
+                      border: OutlineInputBorder(
+                        borderRadius:
+                            BorderRadius.circular(12),
+                      ),
                     ),
-                    onPressed: () async {
-                      final newName = nameController.text.trim();
-                      if (newName.isEmpty) return;
-                      final messenger = ScaffoldMessenger.of(context);
-                      final navigator = Navigator.of(sheetContext);
-                      final success = await authProvider.updateProfile(
-                        fullName: newName,
-                        gender: gender,
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  Text(
+                    'Gender',
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      'Male',
+                      'Female',
+                      'Other',
+                    ].map((option) {
+                      return ChoiceChip(
+                        label: Text(option),
+                        selected: gender == option,
+                        selectedColor:
+                            AppColors.primaryLight,
+                        onSelected: (_) {
+                          setModalState(() {
+                            gender = option;
+                          });
+                        },
                       );
-                      navigator.pop();
-                      messenger.showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            success
-                                ? 'Profile updated.'
-                                : 'Could not update profile.',
-                          ),
+                    }).toList(),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            AppColors.primary,
+                        foregroundColor:
+                            AppColors.textOnPrimary,
+                        padding:
+                            const EdgeInsets.symmetric(
+                          vertical: 14,
                         ),
-                      );
-                    },
-                    child: Text(
-                      'Save',
-                      style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                      ),
+                      onPressed: () async {
+                        final newName =
+                            nameController.text.trim();
+
+                        if (newName.isEmpty) return;
+
+                        final messenger =
+                            ScaffoldMessenger.of(context);
+
+                        final navigator =
+                            Navigator.of(sheetContext);
+
+                        final success =
+                            await authProvider.updateProfile(
+                          fullName: newName,
+                          gender: gender,
+                        );
+
+                        navigator.pop();
+
+                        messenger.showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              success
+                                  ? 'Profile updated.'
+                                  : 'Could not update profile.',
+                            ),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        'Save',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              );
+            },
           ),
         );
       },
     );
   }
 
-  // ============================================
-  // LOGOUT
-  // ============================================
-  void _confirmLogout(BuildContext context, AuthProvider authProvider) {
+  void _confirmLogout(
+    BuildContext context,
+    AuthProvider authProvider,
+  ) {
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(
-          'Logout',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-        ),
-        content: Text(
-          'Are you sure you want to logout?',
-          style: GoogleFonts.poppins(color: AppColors.textSecondary),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              final navigator = Navigator.of(context);
-              final profileProvider = context.read<ProfileProvider>();
-              final wardrobeProvider = context.read<WardrobeProvider>();
-              Navigator.of(dialogContext).pop();
-              await authProvider.logout();
-              profileProvider.clear();
-              wardrobeProvider.resetFilters();
-              navigator.pushNamedAndRemoveUntil('/login', (route) => false);
-            },
-            child: Text(
-              'Logout',
-              style: GoogleFonts.poppins(color: AppColors.error),
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(
+            'Logout',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600,
             ),
           ),
-        ],
-      ),
+          content: Text(
+            'Are you sure you want to logout?',
+            style: GoogleFonts.poppins(
+              color: AppColors.textSecondary,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                final navigator =
+                    Navigator.of(context);
+
+                final profileProvider =
+                    context.read<ProfileProvider>();
+
+                final wardrobeProvider =
+                    context.read<WardrobeProvider>();
+
+                Navigator.of(dialogContext).pop();
+
+                await authProvider.logout();
+
+                profileProvider.clear();
+
+                wardrobeProvider.resetFilters();
+
+                navigator.pushNamedAndRemoveUntil(
+                  '/login',
+                  (route) => false,
+                );
+              },
+              child: Text(
+                'Logout',
+                style: GoogleFonts.poppins(
+                  color: AppColors.error,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

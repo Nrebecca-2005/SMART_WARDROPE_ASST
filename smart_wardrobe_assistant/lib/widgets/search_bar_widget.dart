@@ -71,7 +71,13 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
       child: TextField(
         controller: _controller,
         autofocus: widget.autofocus,
-        onChanged: widget.onSearchChanged,
+onChanged: (query) {
+  setState(() {});
+  widget.onSearchChanged(query);
+},
+onSubmitted: (_) {
+  FocusScope.of(context).unfocus();
+},
         style: GoogleFonts.poppins(
           fontSize: 16,
           color: const Color(0xFF1E293B),
@@ -97,6 +103,7 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
                   onPressed: () {
                     _controller.clear();
                     widget.onSearchChanged('');
+                    FocusScope.of(context).unfocus();
                     setState(() {});
                   },
                 )
