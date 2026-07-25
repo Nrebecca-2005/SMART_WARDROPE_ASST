@@ -205,6 +205,12 @@ class WardrobeProvider with ChangeNotifier {
         // Search in color name
         if (item.colorName?.toLowerCase().contains(query) ?? false) return true;
 
+        // Search in style/occasion (e.g. "formal", "casual")
+        if (item.occasionName?.toLowerCase().contains(query) ?? false) return true;
+
+        // Search in season (e.g. "summer", "winter")
+        if (item.seasonName?.toLowerCase().contains(query) ?? false) return true;
+
         // Search in notes
         if (item.notes?.toLowerCase().contains(query) ?? false) return true;
 

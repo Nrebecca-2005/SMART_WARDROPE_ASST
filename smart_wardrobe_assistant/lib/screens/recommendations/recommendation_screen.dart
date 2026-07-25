@@ -219,11 +219,30 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
                     if (recommendationProvider.hasRecommendation)
                       _buildRecommendedOutfit(recommendationProvider.recommendation!),
 
+                    // Outfit completeness + missing clothing categories
+                    if (recommendationProvider.hasRecommendation) ...[
+                      const SizedBox(height: 16),
+                      _buildOutfitStatus(recommendationProvider.recommendation!),
+                    ],
+
+                    if (recommendationProvider.hasRecommendation &&
+                        recommendationProvider.recommendation!.missingItems.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      _buildMissingItems(recommendationProvider.recommendation!),
+                    ],
+
                     const SizedBox(height: 24),
 
                     // Recommendation Explanation
                     if (recommendationProvider.hasRecommendation)
                       _buildRecommendationExplanation(recommendationProvider.recommendation!),
+
+                    // Suggested purchase categories (missing items only)
+                    if (recommendationProvider.hasRecommendation &&
+                        recommendationProvider.recommendation!.purchaseRecommendations.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      _buildSuggestedPurchases(recommendationProvider.recommendation!),
+                    ],
 
                     if (recommendationProvider.hasRecommendation) ...[
                       const SizedBox(height: 16),
@@ -499,6 +518,210 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
         ),
       ],
     );
+  }
+
+  /// Build outfit completeness badge (Complete Outfit vs Missing Items)
+  Widget _buildOutfitStatus(RecommendationModel recommendation) {
+    final isComplete = recommendation.isCompleteOutfit;
+    final color = isComplete ? AppColors.success : AppColors.warning;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            isComplete ? Icons.check_circle_outline : Icons.info_outline,
+            color: color,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              isComplete
+                  ? 'Complete Outfit — everything you need is in your wardrobe.'
+                  : 'Missing Items — some pieces are needed to complete this outfit.',
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build the list of missing clothing categories (not real products)
+  Widget _buildMissingItems(RecommendationModel recommendation) {
+    return Card(
+      elevation: 2,
+      shadowColor: AppColors.shadow,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.checkroom_outlined, color: AppColors.warning),
+                const SizedBox(width: 8),
+                Text(
+                  'Missing Items',
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ...recommendation.missingItems.map(
+              (item) => Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _titleCase(item.category),
+                      style: GoogleFonts.poppins(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    if (item.reason.isNotEmpty)
+                      Text(
+                        item.reason,
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                          height: 1.4,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Build suggested purchase categories. These are clothing categories to
+  /// consider — not real products, prices, shops, or links.
+  Widget _buildSuggestedPurchases(RecommendationModel recommendation) {
+    return Card(
+      elevation: 2,
+      shadowColor: AppColors.shadow,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.shopping_bag_outlined, color: AppColors.primary),
+                const SizedBox(width: 8),
+                Text(
+                  'Suggested Purchases',
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Clothing categories to consider adding to your wardrobe.',
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ...recommendation.purchaseRecommendations.map(
+              (rec) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Consider adding ${_titleCase(rec.category)} to your wardrobe.',
+                            style: GoogleFonts.poppins(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                        if (rec.priority != null) _buildPriorityChip(rec.priority!),
+                      ],
+                    ),
+                    if (rec.reason.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        rec.reason,
+                        style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPriorityChip(String priority) {
+    final color = switch (priority.toLowerCase()) {
+      'high' => AppColors.error,
+      'medium' => AppColors.warning,
+      _ => AppColors.textSecondary,
+    };
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        priority.toUpperCase(),
+        style: GoogleFonts.poppins(
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          color: color,
+        ),
+      ),
+    );
+  }
+
+  String _titleCase(String value) {
+    if (value.trim().isEmpty) return value;
+    return value
+        .split(' ')
+        .where((word) => word.isNotEmpty)
+        .map((word) => word[0].toUpperCase() + word.substring(1))
+        .join(' ');
   }
 
   /// Build clothing item card

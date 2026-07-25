@@ -223,6 +223,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
       child: TextField(
+        readOnly: true,
         decoration: InputDecoration(
           hintText: 'Search your wardrobe...',
           hintStyle: const TextStyle(
@@ -240,7 +241,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           ),
         ),
         onTap: () {
-          // Navigate to search screen
+          // Open the dedicated wardrobe search screen.
           Navigator.of(context).pushNamed('/search');
         },
       ),

@@ -22,6 +22,8 @@ import 'screens/shopping_recommendations/shopping_recommendations_screen.dart';
 import 'screens/calendar/calendar_screen.dart';
 import 'screens/settings/settings_screen.dart';
 import 'screens/home/feature_placeholder_screen.dart';
+import 'screens/profile/profile_screen.dart';
+import 'screens/search/wardrobe_search_screen.dart';
 
 import 'models/clothing_item.dart';
 
@@ -52,10 +54,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   final List<CameraDescription> cameras;
 
-  const MyApp({
-    super.key,
-    required this.cameras,
-  });
+  const MyApp({super.key, required this.cameras});
 
   @override
   Widget build(BuildContext context) {
@@ -73,108 +72,101 @@ class MyApp extends StatelessWidget {
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, _) => MaterialApp(
-        title: 'Smart Wardrobe Assistant',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light,
-        darkTheme: DarkTheme.theme,
-        themeMode: themeProvider.themeMode,
-        initialRoute: '/',
-        onGenerateRoute: (settings) {
-          // Handle routes with arguments
-          if (settings.name == '/clothing-details') {
-            final clothingItem = settings.arguments as ClothingItem;
-            return MaterialPageRoute(
-              builder: (context) => ClothingDetailsScreen(
-                clothingItem: clothingItem,
-              ),
-            );
-          }
+          title: 'Smart Wardrobe Assistant',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light,
+          darkTheme: DarkTheme.theme,
+          themeMode: themeProvider.themeMode,
+          initialRoute: '/',
+          onGenerateRoute: (settings) {
+            // Handle routes with arguments
+            if (settings.name == '/clothing-details') {
+              final clothingItem = settings.arguments as ClothingItem;
+              return MaterialPageRoute(
+                builder: (context) =>
+                    ClothingDetailsScreen(clothingItem: clothingItem),
+              );
+            }
 
-          if (settings.name == '/add-clothing') {
-            return MaterialPageRoute(
-              builder: (context) => AddClothingScreen(
-                initialImagePath: settings.arguments as String?,
-              ),
-            );
-          }
+            if (settings.name == '/add-clothing') {
+              return MaterialPageRoute(
+                builder: (context) => AddClothingScreen(
+                  initialImagePath: settings.arguments as String?,
+                ),
+              );
+            }
 
-          if (settings.name == '/background-removal-preview') {
-            return MaterialPageRoute(
-              builder: (context) => BackgroundRemovalPreviewScreen(
-                originalImagePath: settings.arguments as String,
-              ),
-            );
-          }
+            if (settings.name == '/background-removal-preview') {
+              return MaterialPageRoute(
+                builder: (context) => BackgroundRemovalPreviewScreen(
+                  originalImagePath: settings.arguments as String,
+                ),
+              );
+            }
 
-          // Return null for routes handled by the routes map
-          return null;
-        },
-        routes: {
-          '/': (context) => const SplashScreen(),
+            // Return null for routes handled by the routes map
+            return null;
+          },
+          routes: {
+            '/': (context) => const SplashScreen(),
 
-          '/onboarding': (context) => const OnboardingScreen(),
+            '/onboarding': (context) => const OnboardingScreen(),
 
-          '/login': (context) => const LoginScreen(),
+            '/login': (context) => const LoginScreen(),
 
-          '/register': (context) => const RegisterScreen(),
+            '/register': (context) => const RegisterScreen(),
 
-          '/forgot-password': (context) =>
-              const ForgotPasswordScreen(),
+            '/forgot-password': (context) => const ForgotPasswordScreen(),
 
-          '/home': (context) => const HomeDashboardScreen(),
+            '/home': (context) => const HomeDashboardScreen(),
 
-          // Camera
-          '/camera': (context) => CameraScreen(cameras: cameras),
+            // Camera
+            '/camera': (context) => CameraScreen(cameras: cameras),
 
-          // Wardrobe
-          '/wardrobe': (context) => const WardrobeScreen(),
+            // Wardrobe
+            '/wardrobe': (context) => const WardrobeScreen(),
 
-          '/otp-verification': (context) =>
-              const MyHomePage(title: 'OTP Verification Screen'),
+            '/otp-verification': (context) =>
+                const MyHomePage(title: 'OTP Verification Screen'),
 
-          '/edit-clothing': (context) =>
-              const MyHomePage(title: 'Edit Clothing Screen'),
+            '/edit-clothing': (context) =>
+                const MyHomePage(title: 'Edit Clothing Screen'),
 
-          '/suggestions': (context) =>
-              const RecommendationScreen(),
-          
-          '/recommendations': (context) =>
-              const RecommendationScreen(),
+            '/suggestions': (context) => const RecommendationScreen(),
 
-          '/history': (context) =>
-              const MyHomePage(title: 'History Screen'),
+            '/recommendations': (context) => const RecommendationScreen(),
 
-          '/shopping-recommendations': (context) =>
-              const ShoppingRecommendationsScreen(),
+            '/history': (context) => const MyHomePage(title: 'History Screen'),
 
-          '/calendar': (context) => const CalendarScreen(),
+            '/shopping-recommendations': (context) =>
+                const ShoppingRecommendationsScreen(),
 
-          '/settings': (context) => const SettingsScreen(),
+            '/calendar': (context) => const CalendarScreen(),
 
-          '/style-tips': (context) => const FeaturePlaceholderScreen(
-                title: 'Style Tips',
-                icon: Icons.lightbulb_outline,
-                message: 'Style tips will appear here as your wardrobe grows.',
-              ),
+            '/settings': (context) => const SettingsScreen(),
 
-          '/outfit-history': (context) => const FeaturePlaceholderScreen(
-                title: 'Outfit History',
-                icon: Icons.shopping_bag_outlined,
-                message: 'Your saved outfit history will appear here.',
-              ),
+            '/style-tips': (context) => const FeaturePlaceholderScreen(
+              title: 'Style Tips',
+              icon: Icons.lightbulb_outline,
+              message: 'Style tips will appear here as your wardrobe grows.',
+            ),
 
-          '/activity-history': (context) => const FeaturePlaceholderScreen(
-                title: 'Activity History',
-                icon: Icons.history,
-                message: 'Your wardrobe activity will appear here.',
-              ),
+            '/outfit-history': (context) => const FeaturePlaceholderScreen(
+              title: 'Outfit History',
+              icon: Icons.shopping_bag_outlined,
+              message: 'Your saved outfit history will appear here.',
+            ),
 
-          '/profile': (context) =>
-              const MyHomePage(title: 'Profile Screen'),
+            '/activity-history': (context) => const FeaturePlaceholderScreen(
+              title: 'Activity History',
+              icon: Icons.history,
+              message: 'Your wardrobe activity will appear here.',
+            ),
 
-          '/search': (context) =>
-              const MyHomePage(title: 'Search Screen'),
-        },
+            '/profile': (context) => const ProfileScreen(),
+
+            '/search': (context) => const WardrobeSearchScreen(),
+          },
         ),
       ),
     );
@@ -182,10 +174,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({
-    super.key,
-    required this.title,
-  });
+  const MyHomePage({super.key, required this.title});
 
   final String title;
 
