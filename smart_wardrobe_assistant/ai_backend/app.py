@@ -11,6 +11,7 @@ from services.background_removal_service import BackgroundRemovalService
 from services.event_classifier import EventClassifier, ModelUnavailableError
 from services.fashion_ai_service import FashionAIService
 from services.recommendation_service import RecommendationEngine
+from services.yolo_service import YoloDetectionService
 
 
 def create_app(
@@ -18,6 +19,7 @@ def create_app(
     recommendation_engine: RecommendationEngine | None = None,
     fashion_service: FashionAIService | None = None,
     background_service: BackgroundRemovalService | None = None,
+    yolo_service: YoloDetectionService | None = None,
 ) -> Flask:
     app = Flask(__name__)
     CORS(app)
@@ -25,6 +27,7 @@ def create_app(
     engine = recommendation_engine or RecommendationEngine()
     fashion = fashion_service or FashionAIService()
     background = background_service or BackgroundRemovalService()
+    yolo = yolo_service or YoloDetectionService()
 
     @app.get('/health')
     def health():
@@ -88,6 +91,16 @@ def create_app(
             return jsonify({'success': False, 'message': 'An image file is required.'}), 400
         try:
             return jsonify({'success': True, **background.remove_background(image.stream)})
+        except ModelUnavailableError as error:
+            return jsonify({'success': False, 'message': str(error)}), 503
+
+    @app.post('/api/detect-clothing')
+    def detect_clothing():
+        image = request.files.get('image')
+        if image is None or not image.filename:
+            return jsonify({'success': False, 'message': 'An image file is required.'}), 400
+        try:
+            return jsonify({'success': True, **yolo.detect(image.stream)})
         except ModelUnavailableError as error:
             return jsonify({'success': False, 'message': str(error)}), 503
 

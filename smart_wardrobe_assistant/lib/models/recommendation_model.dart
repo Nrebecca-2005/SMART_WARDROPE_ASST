@@ -15,6 +15,76 @@ import 'calendar_event_model.dart';
 
 enum RecommendationPreference { balanced, formal, casual, comfortable }
 
+/// Represents a missing clothing item needed to complete an outfit
+class MissingClothingItem {
+  final String category;
+  final String reason;
+  final String? suggestedStyle;
+  final String? suggestedColor;
+
+  const MissingClothingItem({
+    required this.category,
+    required this.reason,
+    this.suggestedStyle,
+    this.suggestedColor,
+  });
+
+  factory MissingClothingItem.fromJson(Map<String, dynamic> json) {
+    return MissingClothingItem(
+      category: json['category'] as String? ?? '',
+      reason: json['reason'] as String? ?? '',
+      suggestedStyle: json['suggested_style'] as String?,
+      suggestedColor: json['suggested_color'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'category': category,
+      'reason': reason,
+      if (suggestedStyle != null) 'suggested_style': suggestedStyle,
+      if (suggestedColor != null) 'suggested_color': suggestedColor,
+    };
+  }
+}
+
+/// Represents a purchase recommendation for missing clothing
+class PurchaseRecommendation {
+  final String category;
+  final String reason;
+  final String? suggestedStyle;
+  final String? suggestedColor;
+  final String? priority;
+
+  const PurchaseRecommendation({
+    required this.category,
+    required this.reason,
+    this.suggestedStyle,
+    this.suggestedColor,
+    this.priority,
+  });
+
+  factory PurchaseRecommendation.fromJson(Map<String, dynamic> json) {
+    return PurchaseRecommendation(
+      category: json['category'] as String? ?? '',
+      reason: json['reason'] as String? ?? '',
+      suggestedStyle: json['suggested_style'] as String?,
+      suggestedColor: json['suggested_color'] as String?,
+      priority: json['priority'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'category': category,
+      'reason': reason,
+      if (suggestedStyle != null) 'suggested_style': suggestedStyle,
+      if (suggestedColor != null) 'suggested_color': suggestedColor,
+      if (priority != null) 'priority': priority,
+    };
+  }
+}
+
 /// RecommendationModel class
 /// Represents a recommended outfit with explanation
 class RecommendationModel {
@@ -48,6 +118,15 @@ class RecommendationModel {
   /// Human-readable weather summary returned by the AI backend.
   final String? aiWeatherSummary;
 
+  /// List of missing clothing items needed to complete the outfit
+  final List<MissingClothingItem> missingItems;
+
+  /// Whether the recommended outfit is complete
+  final bool isCompleteOutfit;
+
+  /// Purchase recommendations for missing items
+  final List<PurchaseRecommendation> purchaseRecommendations;
+
   /// Constructor
   RecommendationModel({
     required this.outfitItems,
@@ -60,6 +139,9 @@ class RecommendationModel {
     this.recommendationSource,
     this.aiEventType,
     this.aiWeatherSummary,
+    this.missingItems = const [],
+    this.isCompleteOutfit = true,
+    this.purchaseRecommendations = const [],
   }) : timestamp = timestamp ?? DateTime.now();
 
   /// Check if the recommendation is still fresh (less than 3 hours old)
@@ -94,6 +176,9 @@ class RecommendationModel {
       'recommendation_source': recommendationSource ?? 'rule-based',
       'ai_event_type': aiEventType,
       'ai_weather_summary': aiWeatherSummary,
+      'missing_items': missingItems.map((item) => item.toJson()).toList(),
+      'is_complete_outfit': isCompleteOutfit,
+      'purchase_recommendations': purchaseRecommendations.map((item) => item.toJson()).toList(),
     };
   }
 
@@ -117,6 +202,13 @@ class RecommendationModel {
       recommendationSource: map['recommendation_source'] as String?,
       aiEventType: map['ai_event_type'] as String?,
       aiWeatherSummary: map['ai_weather_summary'] as String?,
+      missingItems: (map['missing_items'] as List?)
+          ?.map((item) => MissingClothingItem.fromJson(item as Map<String, dynamic>))
+          .toList() ?? [],
+      isCompleteOutfit: map['is_complete_outfit'] as bool? ?? true,
+      purchaseRecommendations: (map['purchase_recommendations'] as List?)
+          ?.map((item) => PurchaseRecommendation.fromJson(item as Map<String, dynamic>))
+          .toList() ?? [],
     );
   }
 
@@ -132,6 +224,9 @@ class RecommendationModel {
     String? recommendationSource,
     String? aiEventType,
     String? aiWeatherSummary,
+    List<MissingClothingItem>? missingItems,
+    bool? isCompleteOutfit,
+    List<PurchaseRecommendation>? purchaseRecommendations,
   }) {
     return RecommendationModel(
       outfitItems: outfitItems ?? this.outfitItems,
@@ -144,6 +239,9 @@ class RecommendationModel {
       recommendationSource: recommendationSource ?? this.recommendationSource,
       aiEventType: aiEventType ?? this.aiEventType,
       aiWeatherSummary: aiWeatherSummary ?? this.aiWeatherSummary,
+      missingItems: missingItems ?? this.missingItems,
+      isCompleteOutfit: isCompleteOutfit ?? this.isCompleteOutfit,
+      purchaseRecommendations: purchaseRecommendations ?? this.purchaseRecommendations,
     );
   }
 

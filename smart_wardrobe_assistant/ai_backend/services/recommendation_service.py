@@ -12,6 +12,15 @@ class RecommendationEngine:
         'general': (),
     }
 
+    # Required categories for complete outfits by event type
+    _required_categories = {
+        'formal': ['shirt', 'trousers', 'shoes'],
+        'casual': ['shirt', 'trousers', 'shoes'],
+        'sports': ['sportswear', 'trousers', 'shoes'],
+        'outdoor': ['shirt', 'trousers', 'shoes', 'jacket'],
+        'general': ['shirt', 'trousers'],
+    }
+
     def recommend(self, *, classification: dict, weather: dict, wardrobe: list[dict], preference: str) -> dict:
         event_type = classification['event_type']
         temperature = float(weather['temperature'])
@@ -46,13 +55,28 @@ class RecommendationEngine:
                 'ai_confidence': classification['confidence'],
             }
 
+        # Detect missing clothing items
+        missing_items = self._detect_missing_items(event_type, categories, temperature, condition)
+        is_complete = len(missing_items) == 0
+
+        # Generate purchase recommendations for missing items
+        purchase_recommendations = self._generate_purchase_recommendations(
+            missing_items, event_type, temperature, condition
+        )
+
+        # Generate enhanced explanation
+        reason = self._enhanced_reason(event_type, temperature, condition, is_complete, missing_items)
+
         return {
             'success': True,
             'event_type': event_type,
             'ai_confidence': classification['confidence'],
             'weather_summary': f'{temperature:g}°C, {condition}',
             'recommended_items': selected,
-            'reason': self._reason(event_type, temperature, condition),
+            'missing_items': missing_items,
+            'is_complete_outfit': is_complete,
+            'purchase_recommendations': purchase_recommendations,
+            'reason': reason,
         }
 
     def _event_score(self, text: str, event_type: str) -> int:
@@ -87,3 +111,100 @@ class RecommendationEngine:
             f'The pretrained AI model classified the event as {event_type}. '
             f'The selected items are from your wardrobe and suit the {weather} weather ({temperature:g}°C, {condition}).'
         )
+
+    def _detect_missing_items(self, event_type: str, available_categories: set, temperature: float, condition: str) -> list[dict]:
+        """Detect missing clothing categories needed to complete the outfit."""
+        required = self._required_categories.get(event_type, [])
+        missing = []
+        
+        for category in required:
+            # Check if we have this category (with fuzzy matching)
+            has_category = any(
+                category in available_cat or available_cat in category
+                for available_cat in available_categories
+            )
+            
+            if not has_category:
+                # Determine suggested style based on event type
+                suggested_style = event_type if event_type != 'general' else 'casual'
+                
+                # Determine suggested color based on weather
+                suggested_color = None
+                if temperature <= 16:
+                    suggested_color = 'dark'  # Darker colors for cold weather
+                elif temperature >= 27:
+                    suggested_color = 'light'  # Lighter colors for warm weather
+                
+                missing.append({
+                    'category': category,
+                    'reason': f'Required to complete the {event_type} outfit.',
+                    'suggested_style': suggested_style,
+                    'suggested_color': suggested_color,
+                })
+        
+        # Special case: rain conditions require rain gear
+        if 'rain' in condition.lower() and 'jacket' not in available_categories:
+            missing.append({
+                'category': 'rain jacket',
+                'reason': 'Rain protection is needed for the current weather.',
+                'suggested_style': 'outdoor',
+                'suggested_color': None,
+            })
+        
+        return missing
+
+    def _generate_purchase_recommendations(self, missing_items: list[dict], event_type: str, temperature: float, condition: str) -> list[dict]:
+        """Generate purchase recommendations for missing clothing items."""
+        recommendations = []
+        
+        for item in missing_items:
+            category = item['category']
+            reason = item['reason']
+            suggested_style = item.get('suggested_style')
+            suggested_color = item.get('suggested_color')
+            
+            # Determine priority based on importance
+            priority = 'medium'
+            if category in ['shoes', 'shirt', 'trousers']:
+                priority = 'high'  # Essential items
+            elif category == 'jacket' and temperature <= 16:
+                priority = 'high'  # Cold weather necessity
+            
+            # Build recommendation description
+            description_parts = [category]
+            if suggested_style:
+                description_parts.append(suggested_style)
+            if suggested_color:
+                description_parts.append(suggested_color)
+            
+            recommendation_description = ' '.join(description_parts)
+            
+            enhanced_reason = (
+                f"{reason} "
+                f"The event was classified as {event_type} and your wardrobe lacks suitable {category}."
+            )
+            
+            recommendations.append({
+                'category': recommendation_description,
+                'reason': enhanced_reason,
+                'suggested_style': suggested_style,
+                'suggested_color': suggested_color,
+                'priority': priority,
+            })
+        
+        return recommendations
+
+    def _enhanced_reason(self, event_type: str, temperature: float, condition: str, is_complete: bool, missing_items: list[dict]) -> str:
+        """Generate enhanced explanation including missing items if any."""
+        weather = 'warm' if temperature >= 24 else 'cold' if temperature <= 16 else 'mild'
+        base_reason = (
+            f'The pretrained AI model classified the event as {event_type}. '
+            f'The selected items are from your wardrobe and suit the {weather} weather ({temperature:g}°C, {condition}).'
+        )
+        
+        if not is_complete and missing_items:
+            missing_categories = [item['category'] for item in missing_items]
+            missing_text = ', '.join(missing_categories)
+            base_reason += f' Your wardrobe is missing {missing_text} to complete the outfit.'
+        
+        return base_reason

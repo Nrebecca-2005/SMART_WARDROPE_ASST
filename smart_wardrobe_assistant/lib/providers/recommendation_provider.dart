@@ -195,6 +195,9 @@ class RecommendationProvider with ChangeNotifier {
         recommendationSource: 'pretrained-ai-backend',
         aiEventType: aiResult.eventType,
         aiWeatherSummary: aiResult.weatherSummary,
+        missingItems: aiResult.missingItems,
+        isCompleteOutfit: aiResult.isCompleteOutfit,
+        purchaseRecommendations: aiResult.purchaseRecommendations,
       );
 
       _setState(RecommendationState.loaded);

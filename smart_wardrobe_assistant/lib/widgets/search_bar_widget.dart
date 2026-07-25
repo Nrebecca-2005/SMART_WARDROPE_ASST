@@ -24,6 +24,7 @@ class SearchBarWidget extends StatefulWidget {
   /// Hint text
   final String hintText;
 
+  /// Whether the field should request focus when first shown
   final bool autofocus;
 
   const SearchBarWidget({
@@ -70,13 +71,13 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
       child: TextField(
         controller: _controller,
         autofocus: widget.autofocus,
-        onChanged: (query) {
-          setState(() {});
-          widget.onSearchChanged(query);
-        },
-        onSubmitted: (_) {
-          FocusScope.of(context).unfocus();
-        },
+onChanged: (query) {
+  setState(() {});
+  widget.onSearchChanged(query);
+},
+onSubmitted: (_) {
+  FocusScope.of(context).unfocus();
+},
         style: GoogleFonts.poppins(
           fontSize: 16,
           color: const Color(0xFF1E293B),
@@ -117,10 +118,7 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(
-              color: Color(0xFF4F46E5),
-              width: 2,
-            ),
+            borderSide: const BorderSide(color: Color(0xFF4F46E5), width: 2),
           ),
           filled: true,
           fillColor: Colors.white,
