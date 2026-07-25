@@ -36,6 +36,7 @@ import 'providers/shopping_recommendation_provider.dart';
 import 'providers/calendar_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/settings_provider.dart';
+import 'screens/profile/profile_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -169,11 +170,10 @@ class MyApp extends StatelessWidget {
                 message: 'Your wardrobe activity will appear here.',
               ),
 
-          '/profile': (context) =>
-              const MyHomePage(title: 'Profile Screen'),
+          '/profile': (context) => const ProfileScreen(),
 
-          '/search': (context) =>
-              const MyHomePage(title: 'Search Screen'),
+
+          '/search': (context) => const WardrobeScreen(searchMode: true),
         },
         ),
       ),

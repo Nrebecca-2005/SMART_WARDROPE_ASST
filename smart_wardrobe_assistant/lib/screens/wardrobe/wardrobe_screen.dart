@@ -24,7 +24,12 @@ import '../../widgets/loading_widget.dart';
 /// WardrobeScreen
 /// Displays and manages the user's clothing wardrobe
 class WardrobeScreen extends StatefulWidget {
-  const WardrobeScreen({super.key});
+  final bool searchMode;
+
+  const WardrobeScreen({
+    super.key,
+    this.searchMode = false,
+  });
 
   @override
   State<WardrobeScreen> createState() => _WardrobeScreenState();
@@ -180,7 +185,7 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
-          'My Wardrobe',
+          widget.searchMode ? 'Search Wardrobe' : 'My Wardrobe',
           style: GoogleFonts.poppins(
             fontSize: 24,
             fontWeight: FontWeight.w600,
@@ -246,6 +251,7 @@ class _WardrobeScreenState extends State<WardrobeScreen> {
                     },
                     initialValue: wardrobeProvider.searchQuery,
                     hintText: 'Search clothes...',
+                    autofocus: widget.searchMode,
                   ),
                 ),
 

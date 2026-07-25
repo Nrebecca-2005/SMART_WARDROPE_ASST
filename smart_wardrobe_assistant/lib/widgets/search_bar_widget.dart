@@ -24,11 +24,14 @@ class SearchBarWidget extends StatefulWidget {
   /// Hint text
   final String hintText;
 
+  final bool autofocus;
+
   const SearchBarWidget({
     super.key,
     required this.onSearchChanged,
     this.initialValue = '',
     this.hintText = 'Search clothes...',
+    this.autofocus = false,
   });
 
   @override
@@ -66,7 +69,14 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
       ),
       child: TextField(
         controller: _controller,
-        onChanged: widget.onSearchChanged,
+        autofocus: widget.autofocus,
+        onChanged: (query) {
+          setState(() {});
+          widget.onSearchChanged(query);
+        },
+        onSubmitted: (_) {
+          FocusScope.of(context).unfocus();
+        },
         style: GoogleFonts.poppins(
           fontSize: 16,
           color: const Color(0xFF1E293B),
@@ -92,6 +102,7 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
                   onPressed: () {
                     _controller.clear();
                     widget.onSearchChanged('');
+                    FocusScope.of(context).unfocus();
                     setState(() {});
                   },
                 )
