@@ -1,3 +1,7 @@
+// Camera Module — Rebecca
+// Screens: CameraScreen, GalleryScreen, ImagePreviewScreen
+// Implemented by: Rebecca
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

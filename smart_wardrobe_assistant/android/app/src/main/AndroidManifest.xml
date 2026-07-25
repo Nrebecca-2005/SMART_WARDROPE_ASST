@@ -1,21 +1,21 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Camera permissions -->
-    <uses-permission android:name="android.permission.CAMERA" />
+<!-- Camera permissions -->
+<uses-permission android:name="android.permission.CAMERA" />
 
-    <!-- Storage permissions for Android 12 and below -->
-    <uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
+<!-- Storage permissions for Android 12 and below -->
+<uses-permission
+    android:name="android.permission.READ_EXTERNAL_STORAGE"
+    android:maxSdkVersion="32" />
 
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="29"
-        tools:replace="android:maxSdkVersion" />
+<uses-permission
+    android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    android:maxSdkVersion="32"
+    tools:replace="android:maxSdkVersion" />
 
-    <!-- Android 13+ image access -->
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+<!-- Android 13+ image access -->
+<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <!-- Weather location permissions -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -29,42 +29,55 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:label="flutter_application_1"
+        android:label="smart_wardrobe_assistant"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:launchMode="singleTop"
-            android:taskAffinity=""
-            android:theme="@style/LaunchTheme"
-            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
-            android:hardwareAccelerated="true"
-            android:windowSoftInputMode="adjustResize">
 
-            <meta-data
-                android:name="io.flutter.embedding.android.NormalTheme"
-                android:resource="@style/NormalTheme" />
+<!-- Weather location permissions -->
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+<!-- Internet permission -->
+<uses-permission android:name="android.permission.INTERNET" />
 
-        </activity>
+<application
+    android:label="flutter_application_1"
+    android:name="${applicationName}"
+    android:icon="@mipmap/ic_launcher">
+
+    <activity
+        android:name=".MainActivity"
+        android:exported="true"
+        android:launchMode="singleTop"
+        android:taskAffinity=""
+        android:theme="@style/LaunchTheme"
+        android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+        android:hardwareAccelerated="true"
+        android:windowSoftInputMode="adjustResize">
 
         <meta-data
-            android:name="flutterEmbedding"
-            android:value="2" />
+            android:name="io.flutter.embedding.android.NormalTheme"
+            android:resource="@style/NormalTheme" />
 
-    </application>
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
 
-    <queries>
-        <intent>
-            <action android:name="android.intent.action.PROCESS_TEXT" />
-            <data android:mimeType="text/plain" />
-        </intent>
-    </queries>
+    </activity>
+
+<meta-data
+    android:name="flutterEmbedding"
+    android:value="2" />
+
+</application>
+
+<queries>
+    <intent>
+        <action android:name="android.intent.action.PROCESS_TEXT" />
+        <data android:mimeType="text/plain" />
+    </intent>
+</queries>
 
 </manifest>
